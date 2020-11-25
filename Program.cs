@@ -6,7 +6,9 @@ namespace LINQToObject
     {
         static void Main(string[] args)
         {
-            Esercizio.DeferredExecution();
+            //Esercizio.DeferredExecution();
+
+            Esercizio.Operators();
         }
     }
 }
