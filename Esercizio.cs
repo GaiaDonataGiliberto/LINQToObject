@@ -59,7 +59,7 @@ namespace LINQToObject
         }
 
 
-        // esecuzione immediata e ritardata
+        // ===ESECUZIONE IMMEDIATA E DIFFERITA===
 
         public static void DeferredExecution()
         {
@@ -121,6 +121,34 @@ namespace LINQToObject
 
 
             #endregion
+
+
+
+        }
+
+
+
+        // ===SINTASSI===
+        public static void Syntax()
+        {
+            var productList = CreateProductList();
+            var orderList = CreateOrderList();
+
+            // method syntax
+            var methodList = productList
+                .Where(p => p.UnitPrice >= 600)
+                .Select(p => new { Nome = p.Name, Prezzo = p.UnitPrice })
+                .ToList();
+
+            // query syntax
+            var queryList =
+                (from p in productList
+                where p.UnitPrice <= 600
+                select new { Nome = p.Name, Prezzo = p.UnitPrice }).ToList();
+           // si fa il .ToList() su tutta la query, cosicché il risultato della query (che è
+           // un IEnumerable) viene castato a List
+
+
 
         }
 
