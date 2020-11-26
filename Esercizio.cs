@@ -299,8 +299,136 @@ namespace LINQToObject
                 }
             }
 
+            // GROUPBY WITH FUNZIONE DI AGGREGAZIONE
+            //raggruppare gli ordini per prodotto e ricavare la somma delle quantità
+            Console.WriteLine("GROUPBY CON FUNZIONE DI AGGREGAZIONE (SUM)");
+
+            // method sytanx
+
+            var sumQuantityByProduct =
+                orderList
+                .GroupBy(p => p.ProductID)
+                .Select(lista => new
+                {
+                    ID = lista.Key,
+                    Quantities = lista.Sum(p => p.Quantity)
+                });
+
+            
+
+            foreach (var item in sumQuantityByProduct)
+            {
+                Console.WriteLine($"Prodotto: {item.ID} - Qnt: {item.Quantities}");
+            }
+
+            // query syntax
+            var sumByProduct2 = 
+                from o in orderList
+                group o by o.ProductID into list3
+                select new { ID = list3.Key, Quantities = list3.Sum(x => x.Quantity)};
+
+            foreach (var item in sumByProduct2)
+            {
+                Console.WriteLine($"Prodotto2: {item.ID} - Qnt2: {item.Quantities}");
+            }
+
             #endregion
 
+            #region ===join===
+
+            //JOIN
+            //recuperiamo i prodotti che hanno ordini
+            // nome - id ordine - quantità
+
+            Console.WriteLine("JOIN");
+
+            // method list
+
+            var joinList = productList
+                .Join(orderList, p => p.ID, o => o.ProductID,
+                (p, o) => new { Nome = p.Name, OrderID = o.ID, Qnt = o.Quantity }); // le join qui sono sempre inner
+
+            foreach (var item in joinList)
+            {
+                Console.WriteLine($"Nome: {item.Nome} - ID: {item.OrderID} - QNT: {item.Qnt}");
+            }
+
+            // query syntax
+            var joinList2 =
+                from p in productList
+                join o in orderList
+                on p.ID equals o.ProductID
+                select new
+                {
+                    Nome = p.Name,
+                    ID = o.ProductID,
+                    Qnt = o.Quantity
+                };
+
+            foreach (var item in joinList2)
+            {
+                Console.WriteLine($"Nome2: {item.Nome} - ID2: {item.ID} - QNT2: {item.Qnt}");
+            }
+
+            //GROUPJOIN
+            //recuperare gli ordini per prodotto e somma quantità
+            // nome prodotto - quantità totale
+
+            Console.WriteLine("GROUPJOIN");
+
+            var groupJoinList = productList
+                .GroupJoin(orderList,
+                p => p.ID,
+                o => o.ProductID,
+                (p, o) => new {
+                Prodotto = p.Name,
+                Quantità = o.Sum(o => o.Quantity)});
+
+            foreach (var item in groupJoinList)
+            {
+                Console.WriteLine($"Prodotto: {item.Prodotto} - Qnt: {item.Quantità}");
+            }
+
+
+            // query syntax
+
+            var groupJoinList2 =
+                from p in productList
+                join o in orderList
+                on p.ID equals o.ProductID
+                into gr
+                select new
+                {
+                    Prodotto = p.Name,
+                    Qnt = gr.Sum(p => p.Quantity)
+                };
+
+            foreach (var item in groupJoinList2)
+            {
+                Console.WriteLine($"Prodotto2: {item.Prodotto} - Qnt2: {item.Qnt}");
+            }
+
+            // group prima e join dopo - uso due comandi diversi
+
+
+            var lista4 =
+                from o in orderList
+                group o by o.ProductID
+                into gr
+                select new { ProdottoId = gr.Key, Quantità = gr.Sum(o => o.Quantity) }           
+                into gr1
+                join p in productList
+                on gr1.ProdottoId equals p.ID
+                select new { p.Name, gr1.Quantità };
+
+
+
+            foreach (var item in lista4)
+            {
+                Console.WriteLine($"{​​​​item.Name}​​​​ - {​​​​item.Quantità}​​​​");
+            }
+            
+          #endregion
 
         }
     }
